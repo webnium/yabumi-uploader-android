@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="start_upload">アップロードを開始しています</string>
+    <string name="uploading">アップロードしています</string>
+    <string name="receiving_response">レスポンスを受信しています</string>
+</resources>
