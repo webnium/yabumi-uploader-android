@@ -195,6 +195,12 @@ public class ViewerActivity extends Activity {
         handleIntent(intent);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mPhotoViewAttacher.cleanup();
+    }
+
     private void handleIntent(Intent intent) {
         Uri uri;
         uri = intent.getData();
@@ -244,5 +250,6 @@ public class ViewerActivity extends Activity {
         ImageView view = (ImageView) findViewById(R.id.fullscreen_content);
         // TODO: resize in other thread.
         view.setImageURI(Uri.fromFile(file));
+        mPhotoViewAttacher.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
     }
 }
