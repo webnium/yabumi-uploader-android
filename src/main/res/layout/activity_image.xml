@@ -16,8 +16,7 @@
         android:textColor="#33b5e5"
         android:textStyle="bold"
         android:textSize="50sp"
-        android:gravity="center"
-        android:text="@string/dummy_content" />
+        android:gravity="center" />
 
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->
@@ -40,12 +39,12 @@
             tools:ignore="UselessParent"
             android:background="@android:drawable/screen_background_dark_transparent">
 
-            <Button android:id="@+id/dummy_button"
+            <Button
+                android:id="@+id/share_button"
                 style="@style/ButtonBarButton"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/dummy_button" />
+                android:text="@string/share_button" />
 
         </LinearLayout>
 
