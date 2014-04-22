@@ -77,4 +77,14 @@ public class Client {
                 Build.MODEL
         );
     }
+
+    public void delete(Image image, ResponseHandlerInterface handler) {
+        final String url = mBaseUrl + "images/" + image.getFilename();
+
+        RequestParams params = new RequestParams();
+
+        params.put("_method", "delete");
+        params.put("pin", image.pin);
+        mClient.post(url, params, handler);
+    }
 }

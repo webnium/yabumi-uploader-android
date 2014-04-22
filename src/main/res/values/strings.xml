@@ -11,4 +11,12 @@
     <string name="share_image_via">Share image via…</string>
     <string name="uploading">Uploading…</string>
     <string name="viewer_image_description">Image uploaded to Yabumi</string>
+    <string name="deleting_image">Deleting image</string>
+    <string name="ensure_deleting_image">This action CANNOT be undone.\n\nAre you sure want to delete this image?</string>
+    <string name="yes_delete">Yes, Delete</string>
+    <string name="done_deletion">Deleted</string>
+    <string name="done_deletion_message">Deleted successfully.</string>
+    <string name="fail_deletion">Error</string>
+    <string name="fail_deletion_message">Cannot delete the image from Yabumi Server.\nPlease retry later.</string>
+    <string name="no">No</string>
 </resources>

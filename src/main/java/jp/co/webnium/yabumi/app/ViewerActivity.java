@@ -2,11 +2,15 @@ package jp.co.webnium.yabumi.app;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -15,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.FileAsyncHttpResponseHandler;
 
 import org.apache.http.Header;
@@ -189,13 +194,73 @@ public class ViewerActivity extends Activity {
                 shareImage();
                 return true;
             case R.id.action_delete:
-                Toast.makeText(this, "Delete this image.", Toast.LENGTH_LONG).show();
+                deleteImage();
                 return true;
             case R.id.action_change_expiration:
                 Toast.makeText(this, "Show change expiration dialog.", Toast.LENGTH_LONG).show();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void deleteImage() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+
+        alertDialog.setTitle(R.string.deleting_image);
+        alertDialog.setMessage(R.string.ensure_deleting_image);
+
+        alertDialog.setPositiveButton(R.string.yes_delete, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Client client = new Client(ViewerActivity.this);
+                client.delete(mImage, new AsyncHttpResponseHandler() {
+                    private ProgressDialog mProgressDialog;
+
+                    @Override
+                    public void onStart() {
+                        mProgressDialog = new ProgressDialog(ViewerActivity.this);
+                        mProgressDialog.setTitle(R.string.deleting_image);
+                        mProgressDialog.show();
+                    }
+
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                        AlertDialog.Builder completeMessageDialog = new AlertDialog.Builder(ViewerActivity.this);
+                        completeMessageDialog.setTitle(R.string.done_deletion);
+                        completeMessageDialog.setMessage(R.string.done_deletion_message);
+                        completeMessageDialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                finish();
+                            }
+                        });
+                        completeMessageDialog.show();
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                        AlertDialog.Builder completeMessageDialog = new AlertDialog.Builder(ViewerActivity.this);
+                        completeMessageDialog.setTitle(R.string.fail_deletion);
+                        completeMessageDialog.setMessage(R.string.fail_deletion_message);
+                        completeMessageDialog.show();
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        mProgressDialog.dismiss();
+                    }
+                });
+            }
+        });
+
+        alertDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Log.d("ViewerActivity", "No, I don't delete image");
+            }
+        });
+
+        alertDialog.show();
     }
 
     /**
