@@ -19,7 +19,6 @@ public class SetSampledImageToImageViewWorkerTask extends AsyncTask<String, Void
     private final WeakReference<ImageView> imageViewReference;
     private final WeakReference<PhotoViewAttacher> photoViewAttacherReference;
     private int mMaximumSize;
-    private String mFile;
 
     public SetSampledImageToImageViewWorkerTask(ImageView imageView, PhotoViewAttacher photoViewAttacher, int maximumSize) {
         // Use a WeakReference to ensure the ImageView can be garbage collected
@@ -31,8 +30,7 @@ public class SetSampledImageToImageViewWorkerTask extends AsyncTask<String, Void
     // Decode image in background.
     @Override
     protected Bitmap doInBackground(String... params) {
-        mFile = params[0];
-        return decodeSampledBitmapFromFile(mFile, mMaximumSize);
+        return decodeSampledBitmapFromFile(params[0], mMaximumSize);
     }
 
     // Once complete, see if ImageView is still around and set bitmap.
