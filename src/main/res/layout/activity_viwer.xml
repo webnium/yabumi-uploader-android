@@ -9,7 +9,8 @@
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
          TextureView, etc. -->
-    <ImageView android:id="@+id/fullscreen_content"
+    <ImageView
+        android:id="@+id/fullscreen_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:keepScreenOn="true"
@@ -26,11 +27,13 @@
         android:id="@+id/progressBar"
         android:layout_gravity="center" />
 
-    <FrameLayout android:layout_width="match_parent"
+    <FrameLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true">
 
-        <LinearLayout android:id="@+id/fullscreen_content_controls"
+        <LinearLayout
+            android:id="@+id/fullscreen_content_controls"
             style="@style/ButtonBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

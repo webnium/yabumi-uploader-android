@@ -77,7 +77,7 @@ public class ViewerActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_image);
+        setContentView(R.layout.activity_viwer);
 
         final View controlsView = findViewById(R.id.fullscreen_content_controls);
 
@@ -228,6 +228,7 @@ public class ViewerActivity extends Activity {
     }
 
     private void enableOwnerMode() {
+        // TODO: 削除ボタンとアレを有効に
     }
 
     private void disableOwnerMode() {
