@@ -69,4 +69,8 @@ public class Image {
         assert isAvailable();
         return id + "." + extension;
     }
+
+    public String getUrl() {
+        return "https://yabumi.cc/" + getFilename();
+    }
 }

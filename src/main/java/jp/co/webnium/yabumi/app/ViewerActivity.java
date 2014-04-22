@@ -177,6 +177,14 @@ public class ViewerActivity extends Activity {
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
 
+    public void onTapShareButton(View view) {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, mImage.getUrl());
+        sendIntent.setType("text/plain");
+        startActivity(Intent.createChooser(sendIntent, getText(R.string.share_image_via)));
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         handleIntent(intent);

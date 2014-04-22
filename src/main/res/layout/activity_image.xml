@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     tools:context="jp.co.webnium.yabumi.app.ViewerActivity"
     android:focusable="false"
-    android:background="@android:color/white">
+    android:background="@android:color/background_light">
 
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
@@ -44,7 +44,8 @@
                 style="@style/ButtonBarButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/share_button" />
+                android:text="@string/share_button"
+                android:onClick="onTapShareButton" />
 
         </LinearLayout>
 
