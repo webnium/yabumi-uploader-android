@@ -71,6 +71,8 @@ public class ViewerActivity extends Activity {
 
     private SetSampledImageToImageViewWorkerTask mSetImageTask;
 
+    private ImageView mContentView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,11 +80,12 @@ public class ViewerActivity extends Activity {
         setContentView(R.layout.activity_image);
 
         final View controlsView = findViewById(R.id.fullscreen_content_controls);
-        final ImageView contentView = (ImageView) findViewById(R.id.fullscreen_content);
+
+        mContentView = (ImageView) findViewById(R.id.fullscreen_content);
 
         // Set up an instance of SystemUiHider to control the system UI for
         // this activity.
-        mSystemUiHider = SystemUiHider.getInstance(this, contentView, HIDER_FLAGS);
+        mSystemUiHider = SystemUiHider.getInstance(this, mContentView, HIDER_FLAGS);
         mSystemUiHider.setup();
         mSystemUiHider
                 .setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
@@ -127,8 +130,7 @@ public class ViewerActivity extends Activity {
         // while interacting with the UI.
         findViewById(R.id.share_button).setOnTouchListener(mDelayHideTouchListener);
 
-        mPhotoViewAttacher = new PhotoViewAttacher(contentView);
-        mSetImageTask = new SetSampledImageToImageViewWorkerTask(contentView, mPhotoViewAttacher, MAXIMUM_IMAGE_SIZE_IN_BYTE);
+        mPhotoViewAttacher = new PhotoViewAttacher(mContentView);
         mPhotoViewAttacher.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
             @Override
             public void onViewTap(View view, float x, float y) {
@@ -220,10 +222,15 @@ public class ViewerActivity extends Activity {
 
         if (mImage.isOwned()) {
             enableOwnerMode();
+        } else {
+            disableOwnerMode();
         }
     }
 
     private void enableOwnerMode() {
+    }
+
+    private void disableOwnerMode() {
     }
 
     private void loadImage() {
@@ -249,6 +256,10 @@ public class ViewerActivity extends Activity {
     }
 
     private void setImage(File file) {
+        if (mSetImageTask != null) {
+            mSetImageTask.cancel(true);
+        }
+        mSetImageTask = new SetSampledImageToImageViewWorkerTask(mContentView, mPhotoViewAttacher, MAXIMUM_IMAGE_SIZE_IN_BYTE);
         mSetImageTask.execute(file.getAbsolutePath());
     }
 }
