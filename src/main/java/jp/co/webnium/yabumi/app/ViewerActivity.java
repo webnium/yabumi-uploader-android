@@ -22,6 +22,7 @@ import java.io.File;
 import jp.co.webnium.yabumi.Client;
 import jp.co.webnium.yabumi.Image;
 import jp.co.webnium.yabumi.app.util.SystemUiHider;
+import uk.co.senab.photoview.PhotoViewAttacher;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -63,6 +64,8 @@ public class ViewerActivity extends Activity {
      */
     private Image mImage;
 
+    private PhotoViewAttacher mPhotoViewAttacher;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,7 +73,7 @@ public class ViewerActivity extends Activity {
         setContentView(R.layout.activity_image);
 
         final View controlsView = findViewById(R.id.fullscreen_content_controls);
-        final View contentView = findViewById(R.id.fullscreen_content);
+        final ImageView contentView = (ImageView) findViewById(R.id.fullscreen_content);
 
         // Set up an instance of SystemUiHider to control the system UI for
         // this activity.
@@ -130,6 +133,8 @@ public class ViewerActivity extends Activity {
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
         findViewById(R.id.share_button).setOnTouchListener(mDelayHideTouchListener);
+
+        mPhotoViewAttacher = new PhotoViewAttacher(contentView);
 
         handleIntent(getIntent());
     }
