@@ -1,6 +1,10 @@
 package jp.co.webnium.yabumi.app;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.ClipData;
+import android.content.ClipDescription;
+import android.content.ClipboardManager;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
@@ -11,7 +15,14 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import jp.co.webnium.yabumi.Client;
 import jp.co.webnium.yabumi.Image;
 
 public class MainActivity extends ActionBarActivity {
@@ -21,13 +32,15 @@ public class MainActivity extends ActionBarActivity {
     static final String CAPTURE_IMAGE_MIME_TYPE = "image/jpeg";
 
     private Uri mCapturedImageUri;
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-    }
 
+        handleIntent(getIntent());
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -35,6 +48,20 @@ public class MainActivity extends ActionBarActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (!Intent.ACTION_SEND.equals(intent.getAction())) {
+            return;
+        }
+
+        Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+        uploadImage(imageUri);
     }
 
     @Override
@@ -89,9 +116,7 @@ public class MainActivity extends ActionBarActivity {
             return;
         }
 
-        Intent intent = new Intent(getApplicationContext(), UploadActivity.class);
-        intent.putExtra(Intent.EXTRA_STREAM, data.getData());
-        startActivity(intent);
+        uploadImage(data.getData());
     }
 
     private void handleCaptureResult(int resultCode, Intent data)
@@ -103,9 +128,58 @@ public class MainActivity extends ActionBarActivity {
             return;
         }
 
-        Intent intent = new Intent(getApplicationContext(), UploadActivity.class);
-        intent.putExtra(Intent.EXTRA_STREAM, mCapturedImageUri);
-        intent.setType(CAPTURE_IMAGE_MIME_TYPE);
-        startActivity(intent);
+        uploadImage(mCapturedImageUri);
+    }
+
+    private void uploadImage(Uri imageUri) {
+        Client client = new Client(this);
+        client.upload(imageUri, new MyAsyncHttpResponseHandler());
+    }
+
+    private class MyAsyncHttpResponseHandler extends JsonHttpResponseHandler {
+        @Override
+        public void onStart() {
+            mProgressDialog = new ProgressDialog(MainActivity.this);
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            mProgressDialog.setMessage(getString(R.string.uploading));
+            mProgressDialog.show();
+        }
+
+        @Override
+        public void onSuccess(int statusCode, JSONObject response) {
+            String editUrl;
+            String url;
+            try {
+                url = response.getString("url");
+                editUrl = response.getString("editUrl");
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return;
+            }
+
+            ClipData.Item item = new ClipData.Item(url);
+            String[] mimeType = new String[1];
+            mimeType[0] = ClipDescription.MIMETYPE_TEXT_URILIST;
+
+            ClipData clipData = new ClipData(new ClipDescription("text_data", mimeType), item);
+            ClipboardManager clipboardManager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+
+            clipboardManager.setPrimaryClip(clipData);
+
+            Intent intent = new Intent(getApplicationContext(), ViewerActivity.class);
+            intent.setData(Uri.parse(editUrl));
+
+            startActivity(intent);
+        }
+
+        @Override
+        public void onFailure(int statusCode, org.apache.http.Header[] headers, byte[] responseBody, java.lang.Throwable error) {
+            Toast.makeText(getBaseContext(), "Error " + error, Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onFinish() {
+            mProgressDialog.dismiss();
+        }
     }
 }

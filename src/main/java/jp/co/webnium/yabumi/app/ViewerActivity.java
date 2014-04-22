@@ -3,8 +3,6 @@ package jp.co.webnium.yabumi.app;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,11 +13,13 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.BinaryHttpResponseHandler;
+import com.loopj.android.http.FileAsyncHttpResponseHandler;
 
 import org.apache.http.Header;
 
+import java.io.File;
+
+import jp.co.webnium.yabumi.Client;
 import jp.co.webnium.yabumi.Image;
 import jp.co.webnium.yabumi.app.util.SystemUiHider;
 
@@ -62,8 +62,6 @@ public class ViewerActivity extends Activity {
      * The image to treat with this activity.
      */
     private Image mImage;
-
-    final private AsyncHttpClient mHttpClient = new AsyncHttpClient();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -208,33 +206,30 @@ public class ViewerActivity extends Activity {
 
     private void loadImage()
     {
-        String url = getString(R.string.yabumi_api_base) + "images/" + mImage.getFilename();
-        mHttpClient.get(url, new BinaryHttpResponseHandler(Image.AVAILABLE_CONTENT_TYPES) {
+        Client client = new Client(this);
+        client.get(mImage, new FileAsyncHttpResponseHandler(this) {
             @Override
-            public void onSuccess(byte[] binaryData) {
-                setImage(binaryData);
+            public void onSuccess(File file) {
+                setImage(file);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] binaryData, Throwable error) {
-                Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_LONG).show();
+                Toast.makeText(ViewerActivity.this, error.toString(), Toast.LENGTH_LONG).show();
                 finish();
             }
 
             @Override
             public void onFinish() {
                 ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
-
                 progressBar.setVisibility(View.GONE);
             }
         });
     }
 
-    private void setImage(byte[] image) {
+    private void setImage(File file) {
         ImageView view = (ImageView) findViewById(R.id.fullscreen_content);
-        Bitmap bitmap;
-
-        bitmap = BitmapFactory.decodeByteArray(image, 0, image.length);
-        view.setImageBitmap(bitmap);
+        // TODO: resize in other thread.
+        view.setImageURI(Uri.fromFile(file));
     }
 }
