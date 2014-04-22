@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by Koichi on 14/04/21.
+ * Image meta data class for yabumi.cc
  */
 public class Image {
     final static private Pattern PATTERN_IMAGE_PATH = Pattern.compile("^/([0-9a-f]+)\\.(png|jpg|svg|gif|pdf)$");
@@ -28,8 +28,8 @@ public class Image {
 
     /**
      *  Create image object from uri
-     * @param uri
-     * @return
+     * @param uri URI to parse for image instance creation
+     * @return an Image instance
      */
     static public Image fromUri(Uri uri) {
        Image image = new Image();
@@ -47,7 +47,7 @@ public class Image {
 
     /**
      * Has owner ship of this image or not.
-     * @return
+     * @return True if the image is owned by the device.
      */
     public boolean isOwned() {
         return pin != null;
@@ -55,7 +55,7 @@ public class Image {
 
     /**
      * Check this image is available or not.
-     * @return
+     * @return True if the image is available.
      */
     public boolean isAvailable() {
         return id != null;
@@ -63,13 +63,18 @@ public class Image {
 
     /**
      * Get image filename.
-     * @return
+     * @return filename of this image.
      */
     public String getFilename() {
         assert isAvailable();
         return id + "." + extension;
     }
 
+    /**
+     * Get URL of the image
+     *
+     * @return URL of the image.
+     */
     public String getUrl() {
         return "https://yabumi.cc/" + getFilename();
     }
