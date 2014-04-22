@@ -2,6 +2,6 @@
 <resources>
     <string name="start_upload">アップロードを開始しています</string>
     <string name="uploading">アップロードしています</string>
-    <string name="share_button">共有</string>
+    <string name="action_share">共有</string>
     <string name="share_image_via">画像を共有…</string>
 </resources>

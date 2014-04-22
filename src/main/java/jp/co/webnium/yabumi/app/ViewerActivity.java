@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -77,7 +79,7 @@ public class ViewerActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_viwer);
+        setContentView(R.layout.activity_viewer);
 
         final View controlsView = findViewById(R.id.fullscreen_content_controls);
 
@@ -155,6 +157,46 @@ public class ViewerActivity extends Activity {
         delayedHide(100);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.viewer, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        if (mImage == null) {
+            return true;
+        }
+
+        MenuItem menuItemDelete = menu.findItem(R.id.action_delete);
+        MenuItem menuItemChangeExpiration = menu.findItem(R.id.action_change_expiration);
+
+        if (menuItemDelete != null) menuItemDelete.setVisible(mImage.isOwned());
+        if (menuItemChangeExpiration != null) menuItemChangeExpiration.setVisible(mImage.isOwned());
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_share:
+                shareImage();
+                return true;
+            case R.id.action_delete:
+                Toast.makeText(this, "Delete this image.", Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.action_change_expiration:
+                Toast.makeText(this, "Show change expiration dialog.", Toast.LENGTH_LONG).show();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     /**
      * Touch listener to use for in-layout UI controls to delay hiding the
@@ -189,6 +231,10 @@ public class ViewerActivity extends Activity {
     }
 
     public void onTapShareButton(View view) {
+        shareImage();
+    }
+
+    private void shareImage() {
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.putExtra(Intent.EXTRA_TEXT, mImage.getUrl());
@@ -219,19 +265,6 @@ public class ViewerActivity extends Activity {
         }
 
         loadImage();
-
-        if (mImage.isOwned()) {
-            enableOwnerMode();
-        } else {
-            disableOwnerMode();
-        }
-    }
-
-    private void enableOwnerMode() {
-        // TODO: 削除ボタンとアレを有効に
-    }
-
-    private void disableOwnerMode() {
     }
 
     private void loadImage() {
