@@ -21,6 +21,7 @@ import java.io.File;
 
 import jp.co.webnium.yabumi.Client;
 import jp.co.webnium.yabumi.Image;
+import jp.co.webnium.yabumi.app.util.SetSampledImageToImageViewWorkerTask;
 import jp.co.webnium.yabumi.app.util.SystemUiHider;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -31,6 +32,8 @@ import uk.co.senab.photoview.PhotoViewAttacher;
  * @see SystemUiHider
  */
 public class ViewerActivity extends Activity {
+    private static final int MAXIMUM_IMAGE_SIZE_IN_BYTE = 5000000;
+
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -65,6 +68,8 @@ public class ViewerActivity extends Activity {
     private Image mImage;
 
     private PhotoViewAttacher mPhotoViewAttacher;
+
+    private SetSampledImageToImageViewWorkerTask mSetImageTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,10 +122,16 @@ public class ViewerActivity extends Activity {
                     }
                 });
 
-        // Set up the user interaction to manually show or hide the system UI.
-        contentView.setOnClickListener(new View.OnClickListener() {
+        // Upon interacting with UI controls, delay any scheduled hide()
+        // operations to prevent the jarring behavior of controls going away
+        // while interacting with the UI.
+        findViewById(R.id.share_button).setOnTouchListener(mDelayHideTouchListener);
+
+        mPhotoViewAttacher = new PhotoViewAttacher(contentView);
+        mSetImageTask = new SetSampledImageToImageViewWorkerTask(contentView, mPhotoViewAttacher, MAXIMUM_IMAGE_SIZE_IN_BYTE);
+        mPhotoViewAttacher.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
             @Override
-            public void onClick(View view) {
+            public void onViewTap(View view, float x, float y) {
                 if (TOGGLE_ON_CLICK) {
                     mSystemUiHider.toggle();
                 } else {
@@ -128,13 +139,6 @@ public class ViewerActivity extends Activity {
                 }
             }
         });
-
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-        findViewById(R.id.share_button).setOnTouchListener(mDelayHideTouchListener);
-
-        mPhotoViewAttacher = new PhotoViewAttacher(contentView);
 
         handleIntent(getIntent());
     }
@@ -247,9 +251,6 @@ public class ViewerActivity extends Activity {
     }
 
     private void setImage(File file) {
-        ImageView view = (ImageView) findViewById(R.id.fullscreen_content);
-        // TODO: resize in other thread.
-        view.setImageURI(Uri.fromFile(file));
-        mPhotoViewAttacher.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        mSetImageTask.execute(file.getAbsolutePath());
     }
 }
