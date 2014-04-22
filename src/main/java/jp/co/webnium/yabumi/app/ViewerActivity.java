@@ -223,12 +223,10 @@ public class ViewerActivity extends Activity {
         }
     }
 
-    private void enableOwnerMode()
-    {
+    private void enableOwnerMode() {
     }
 
-    private void loadImage()
-    {
+    private void loadImage() {
         Client client = new Client(this);
         client.get(mImage, new FileAsyncHttpResponseHandler(this) {
             @Override
