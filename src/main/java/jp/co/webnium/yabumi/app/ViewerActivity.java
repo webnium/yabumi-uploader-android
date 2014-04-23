@@ -360,6 +360,10 @@ public class ViewerActivity extends Activity {
         super.onDestroy();
         mPhotoViewAttacher.cleanup();
 
+        cancelSetImageTask();
+    }
+
+    private void cancelSetImageTask() {
         if (mSetImageTask != null) {
             mSetImageTask.cancel(true);
         }
@@ -396,9 +400,7 @@ public class ViewerActivity extends Activity {
     }
 
     private void setImage(File file) {
-        if (mSetImageTask != null) {
-            mSetImageTask.cancel(true);
-        }
+        cancelSetImageTask();
 
         final WeakReference<ImageView> imageViewWeakRef = new WeakReference<ImageView>(mContentView);
         final WeakReference<PhotoViewAttacher> photoViewAttacherWeakReference = new WeakReference<PhotoViewAttacher>(mPhotoViewAttacher);
