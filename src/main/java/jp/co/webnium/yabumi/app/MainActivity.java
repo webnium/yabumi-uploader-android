@@ -94,6 +94,11 @@ public class MainActivity extends ActionBarActivity {
         mCapturedImageUri = getContentResolver().insert(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, capturedImageUriValues);
 
+        if (mCapturedImageUri == null) {
+            Log.e("MainActivity", "Capture image url creation failed.");
+            return;
+        }
+
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intent.putExtra(MediaStore.EXTRA_OUTPUT,  mCapturedImageUri);
 
