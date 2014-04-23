@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,12 +26,13 @@ import com.loopj.android.http.FileAsyncHttpResponseHandler;
 import org.apache.http.Header;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.Calendar;
 import java.util.Locale;
 
 import jp.co.webnium.yabumi.Client;
 import jp.co.webnium.yabumi.Image;
-import jp.co.webnium.yabumi.app.util.SetSampledImageToImageViewWorkerTask;
+import jp.co.webnium.yabumi.app.util.ImageSamplingTask;
 import jp.co.webnium.yabumi.app.util.SystemUiHider;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -78,7 +80,7 @@ public class ViewerActivity extends Activity {
 
     private PhotoViewAttacher mPhotoViewAttacher;
 
-    private SetSampledImageToImageViewWorkerTask mSetImageTask;
+    private ImageSamplingTask mSetImageTask;
 
     private ImageView mContentView;
 
@@ -357,6 +359,10 @@ public class ViewerActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         mPhotoViewAttacher.cleanup();
+
+        if (mSetImageTask != null) {
+            mSetImageTask.cancel(true);
+        }
     }
 
     private void handleIntent(Intent intent) {
@@ -386,12 +392,6 @@ public class ViewerActivity extends Activity {
                 Toast.makeText(ViewerActivity.this, error.toString(), Toast.LENGTH_LONG).show();
                 finish();
             }
-
-            @Override
-            public void onFinish() {
-                ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
-                progressBar.setVisibility(View.GONE);
-            }
         });
     }
 
@@ -399,7 +399,29 @@ public class ViewerActivity extends Activity {
         if (mSetImageTask != null) {
             mSetImageTask.cancel(true);
         }
-        mSetImageTask = new SetSampledImageToImageViewWorkerTask(mContentView, mPhotoViewAttacher, MAXIMUM_IMAGE_SIZE_IN_BYTE);
+
+        final WeakReference<ImageView> imageViewWeakRef = new WeakReference<ImageView>(mContentView);
+        final WeakReference<PhotoViewAttacher> photoViewAttacherWeakReference = new WeakReference<PhotoViewAttacher>(mPhotoViewAttacher);
+        final WeakReference<ProgressBar> progressBarWeakReference = new WeakReference<ProgressBar>((ProgressBar) findViewById(R.id.progressBar));
+        mSetImageTask = new ImageSamplingTask(MAXIMUM_IMAGE_SIZE_IN_BYTE) {
+            @Override
+            protected void onPostExecute(Bitmap bitmap) {
+                if (bitmap == null) return;
+
+                final ImageView imageView = imageViewWeakRef.get();
+                final PhotoViewAttacher photoViewAttacher = photoViewAttacherWeakReference.get();
+                final ProgressBar progressBar = progressBarWeakReference.get();
+
+                if (imageView == null || photoViewAttacher == null || progressBar == null) {
+                    return;
+                }
+
+                imageView.setImageBitmap(bitmap);
+                photoViewAttacher.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                progressBar.setVisibility(View.GONE);
+            }
+        };
+
         mSetImageTask.execute(file.getAbsolutePath());
     }
 }

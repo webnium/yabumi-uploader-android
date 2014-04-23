@@ -4,26 +4,16 @@ package jp.co.webnium.yabumi.app.util;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.widget.ImageView;
-
-import java.lang.ref.WeakReference;
-
-import uk.co.senab.photoview.PhotoViewAttacher;
 
 /**
- * SetSampledImageToImageViewWorkerTask
+ * ImageSamplingTask
  * <p/>
  * refs http://developer.android.com/training/displaying-bitmaps/process-bitmap.html
  */
-public class SetSampledImageToImageViewWorkerTask extends AsyncTask<String, Void, Bitmap> {
-    private final WeakReference<ImageView> imageViewReference;
-    private final WeakReference<PhotoViewAttacher> photoViewAttacherReference;
+public class ImageSamplingTask extends AsyncTask<String, Void, Bitmap> {
     private int mMaximumSize;
 
-    public SetSampledImageToImageViewWorkerTask(ImageView imageView, PhotoViewAttacher photoViewAttacher, int maximumSize) {
-        // Use a WeakReference to ensure the ImageView can be garbage collected
-        imageViewReference = new WeakReference<ImageView>(imageView);
-        photoViewAttacherReference = new WeakReference<PhotoViewAttacher>(photoViewAttacher);
+    public ImageSamplingTask(int maximumSize) {
         mMaximumSize = maximumSize;
     }
 
@@ -31,22 +21,6 @@ public class SetSampledImageToImageViewWorkerTask extends AsyncTask<String, Void
     @Override
     protected Bitmap doInBackground(String... params) {
         return decodeSampledBitmapFromFile(params[0], mMaximumSize);
-    }
-
-    // Once complete, see if ImageView is still around and set bitmap.
-    @Override
-    protected void onPostExecute(Bitmap bitmap) {
-        if (bitmap != null) {
-            final ImageView imageView = imageViewReference.get();
-            if (imageView != null) {
-                imageView.setImageBitmap(bitmap);
-            }
-
-            final PhotoViewAttacher photoViewAttacher = photoViewAttacherReference.get();
-            if (photoViewAttacher != null) {
-                photoViewAttacher.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-            }
-        }
     }
 
     private static Bitmap decodeSampledBitmapFromFile(String file, int maximumSize) {
