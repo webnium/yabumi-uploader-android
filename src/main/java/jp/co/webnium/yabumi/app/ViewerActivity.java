@@ -25,6 +25,8 @@ import com.loopj.android.http.FileAsyncHttpResponseHandler;
 import org.apache.http.Header;
 
 import java.io.File;
+import java.util.Calendar;
+import java.util.Locale;
 
 import jp.co.webnium.yabumi.Client;
 import jp.co.webnium.yabumi.Image;
@@ -197,7 +199,7 @@ public class ViewerActivity extends Activity {
                 deleteImage();
                 return true;
             case R.id.action_change_expiration:
-                Toast.makeText(this, "Show change expiration dialog.", Toast.LENGTH_LONG).show();
+                changeImageExpiration();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -253,10 +255,49 @@ public class ViewerActivity extends Activity {
             }
         });
 
-        alertDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 Log.d("ViewerActivity", "No, I don't delete image");
+            }
+        });
+
+        alertDialog.show();
+    }
+
+    private void changeImageExpiration() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setItems(R.array.expiry_options, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                dialog.dismiss();
+                Calendar expiresAt = null;
+                int[] values = getResources().getIntArray(R.array.expiry_option_values);
+                if (values.length > i) {
+                    expiresAt = Calendar.getInstance(Locale.US);
+                    expiresAt.add(Calendar.SECOND, values[i]);
+                }
+
+                new Client(ViewerActivity.this).changeExpiration(mImage, expiresAt, new AsyncHttpResponseHandler() {
+                    private ProgressDialog mProgressDialog;
+
+                    @Override
+                    public void onStart() {
+                        mProgressDialog = new ProgressDialog(ViewerActivity.this);
+                        mProgressDialog.setTitle(R.string.changing_expiration);
+                        mProgressDialog.show();
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                        Toast.makeText(ViewerActivity.this, R.string.fail_change_expiration_message, Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        mProgressDialog.dismiss();
+                    }
+                });
             }
         });
 

@@ -18,5 +18,14 @@
     <string name="done_deletion_message">Deleted successfully.</string>
     <string name="fail_deletion">Error</string>
     <string name="fail_deletion_message">Cannot delete the image from Yabumi Server.\nPlease retry later.</string>
-    <string name="no">No</string>
+    <string name="changing_expiration">Changing expiration</string>
+    <string name="fail_change_expiration_message">Changing expiration failed.\nPlease retry later.</string>
+
+    <!-- expiry options -->
+    <string name="three_minutes">3 minutes</string>
+    <string name="an_hour">1 hour</string>
+    <string name="twenty_four_hours">24 hours</string>
+    <string name="seven_days">7 days</string>
+    <string name="thirty_days">30 days</string>
+    <string name="never">never</string>
 </resources>

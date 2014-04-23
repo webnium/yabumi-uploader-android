@@ -10,8 +10,15 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.ResponseHandlerInterface;
 
+import org.apache.http.entity.StringEntity;
+
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 
 import jp.co.webnium.yabumi.app.R;
 
@@ -19,6 +26,8 @@ import jp.co.webnium.yabumi.app.R;
  * Yabumi API Client
  */
 public class Client {
+    static private final DateFormat RFC2822_DATE_FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
+
     private String mBaseUrl;
     private Context mContext;
     private AsyncHttpClient mClient;
@@ -86,5 +95,17 @@ public class Client {
         params.put("_method", "delete");
         params.put("pin", image.pin);
         mClient.post(url, params, handler);
+    }
+
+    public void changeExpiration(Image image, Calendar expiresAt, ResponseHandlerInterface handler) {
+        final String url = mBaseUrl + "images/" + image.id + ".json";
+        final String jsonString;
+
+        jsonString = String.format("{\"pin\":\"%s\", \"expiresAt\": %s}", image.pin, expiresAt == null ? "null" : "\"" + RFC2822_DATE_FORMAT.format(expiresAt.getTime()) + "\"");
+        try {
+            mClient.put(null, url, new StringEntity(jsonString), "application/json", handler);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 }

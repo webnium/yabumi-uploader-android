@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="expiry_options">
+        <item>@string/three_minutes</item>
+        <item>@string/an_hour</item>
+        <item>@string/twenty_four_hours</item>
+        <item>@string/seven_days</item>
+        <item>@string/thirty_days</item>
+        <item>@string/never</item>
+    </string-array>
+
+    <integer name="expiry_option_never_index">5</integer>
+
+    <integer-array name="expiry_option_values">
+        <item>180</item>
+        <item>3600</item>
+        <item>86400</item>
+        <item>604800</item>
+        <item>2592000</item>
+    </integer-array>
+
+</resources>
