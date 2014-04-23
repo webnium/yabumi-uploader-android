@@ -20,6 +20,8 @@
     <string name="fail_deletion_message">Cannot delete the image from Yabumi Server.\nPlease retry later.</string>
     <string name="changing_expiration">Changing expiration</string>
     <string name="fail_change_expiration_message">Changing expiration failed.\nPlease retry later.</string>
+    <string name="unsupported_mime_type">Unsupported File Type</string>
+    <string name="supported_file_types">Yabumi support only following types:\n%1$s</string>
 
     <!-- expiry options -->
     <string name="three_minutes">3 minutes</string>

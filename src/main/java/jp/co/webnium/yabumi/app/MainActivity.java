@@ -1,6 +1,7 @@
 package jp.co.webnium.yabumi.app;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipDescription;
@@ -22,6 +23,8 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Arrays;
 
 import jp.co.webnium.yabumi.Client;
 import jp.co.webnium.yabumi.Image;
@@ -79,7 +82,7 @@ public class MainActivity extends ActionBarActivity {
 
     public void onClickUploadButton(View view) {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType(TextUtils.join(";", Image.AVAILABLE_CONTENT_TYPES));
+        intent.setType("*/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
 
         startActivityForResult(Intent.createChooser(intent, "Select to upload."), GET_CONTENT_REQUEST);
@@ -122,7 +125,19 @@ public class MainActivity extends ActionBarActivity {
             return;
         }
 
-        uploadImage(data.getData());
+        Uri imageUri = data.getData();
+
+        final String mimeType = getContentResolver().getType(imageUri);
+        if (!Arrays.asList(Image.AVAILABLE_CONTENT_TYPES).contains(mimeType)) {
+            String message = getString(R.string.supported_file_types, TextUtils.join(", ", Image.AVAILABLE_CONTENT_TYPES));
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.unsupported_mime_type)
+                    .setMessage(message)
+                    .setCancelable(true)
+                    .show();
+            return;
+        }
+        uploadImage(imageUri);
     }
 
     private void handleCaptureResult(int resultCode, Intent data)
