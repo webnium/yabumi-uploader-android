@@ -84,6 +84,8 @@ public class ViewerActivity extends Activity {
 
     private ImageView mContentView;
 
+    private ProgressBar mProgressBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,6 +95,7 @@ public class ViewerActivity extends Activity {
         final View controlsView = findViewById(R.id.fullscreen_content_controls);
 
         mContentView = (ImageView) findViewById(R.id.fullscreen_content);
+        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         // Set up an instance of SystemUiHider to control the system UI for
         // this activity.
@@ -384,6 +387,8 @@ public class ViewerActivity extends Activity {
     }
 
     private void loadImage() {
+        mContentView.setVisibility(View.INVISIBLE);
+        mProgressBar.setVisibility(View.VISIBLE);
         Client client = new Client(this);
         client.get(mImage, new FileAsyncHttpResponseHandler(this) {
             @Override
@@ -404,7 +409,7 @@ public class ViewerActivity extends Activity {
 
         final WeakReference<ImageView> imageViewWeakRef = new WeakReference<ImageView>(mContentView);
         final WeakReference<PhotoViewAttacher> photoViewAttacherWeakReference = new WeakReference<PhotoViewAttacher>(mPhotoViewAttacher);
-        final WeakReference<ProgressBar> progressBarWeakReference = new WeakReference<ProgressBar>((ProgressBar) findViewById(R.id.progressBar));
+        final WeakReference<ProgressBar> progressBarWeakReference = new WeakReference<ProgressBar>(mProgressBar);
         mSetImageTask = new ImageSamplingTask(MAXIMUM_IMAGE_SIZE_IN_BYTE) {
             @Override
             protected void onPostExecute(Bitmap bitmap) {
@@ -419,6 +424,7 @@ public class ViewerActivity extends Activity {
                 }
 
                 imageView.setImageBitmap(bitmap);
+                imageView.setVisibility(View.VISIBLE);
                 photoViewAttacher.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 progressBar.setVisibility(View.GONE);
             }
