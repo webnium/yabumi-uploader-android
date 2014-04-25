@@ -37,13 +37,20 @@ public class MainActivity extends ActionBarActivity {
 
     private Uri mCapturedImageUri;
     private ProgressDialog mProgressDialog;
+    private Client mClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mClient = new Client(this);
 
         handleIntent(getIntent());
+    }
+
+    @Override
+    protected void onDestroy() {
+        mClient.cancelRequests(true);
     }
 
     @Override
@@ -153,13 +160,11 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void uploadImage(Uri imageUri) {
-        Client client = new Client(this);
-
         if (imageUri == null) {
             Log.e("MainActivity", "Image url is null when uploading image.");
             return;
         }
-        client.upload(imageUri, new MyAsyncHttpResponseHandler());
+        mClient.upload(imageUri, new MyAsyncHttpResponseHandler());
     }
 
     private class MyAsyncHttpResponseHandler extends JsonHttpResponseHandler {

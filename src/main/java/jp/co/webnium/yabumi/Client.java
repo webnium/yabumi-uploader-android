@@ -57,12 +57,12 @@ public class Client {
         RequestParams params = new RequestParams();
         params.put("imagedata", img, "", "application/octet-stream");
 
-        mClient.post(url, params, handler);
+        mClient.post(mContext, url, params, handler);
     }
 
     public void get(Image image, ResponseHandlerInterface handler) {
         final String url = mBaseUrl + "images/" + image.getFilename();
-        mClient.get(url, handler);
+        mClient.get(mContext, url, handler);
     }
 
     private String getUserAgent() {
@@ -94,7 +94,7 @@ public class Client {
 
         params.put("_method", "delete");
         params.put("pin", image.pin);
-        mClient.post(url, params, handler);
+        mClient.post(mContext, url, params, handler);
     }
 
     public void changeExpiration(Image image, Calendar expiresAt, ResponseHandlerInterface handler) {
@@ -103,9 +103,13 @@ public class Client {
 
         jsonString = String.format("{\"pin\":\"%s\", \"expiresAt\": %s}", image.pin, expiresAt == null ? "null" : "\"" + RFC2822_DATE_FORMAT.format(expiresAt.getTime()) + "\"");
         try {
-            mClient.put(null, url, new StringEntity(jsonString), "application/json", handler);
+            mClient.put(mContext, url, new StringEntity(jsonString), "application/json", handler);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+    }
+
+    public void cancelRequests(boolean mayInterruptIfRunning) {
+        mClient.cancelRequests(mContext, mayInterruptIfRunning);
     }
 }

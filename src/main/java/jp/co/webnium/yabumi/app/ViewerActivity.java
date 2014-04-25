@@ -86,6 +86,8 @@ public class ViewerActivity extends Activity {
 
     private ProgressBar mProgressBar;
 
+    private Client mClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -156,6 +158,7 @@ public class ViewerActivity extends Activity {
             }
         });
 
+        mClient = new Client(this);
         handleIntent(getIntent());
     }
 
@@ -219,8 +222,7 @@ public class ViewerActivity extends Activity {
         alertDialog.setPositiveButton(R.string.yes_delete, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Client client = new Client(ViewerActivity.this);
-                client.delete(mImage, new AsyncHttpResponseHandler() {
+                mClient.delete(mImage, new AsyncHttpResponseHandler() {
                     private ProgressDialog mProgressDialog;
 
                     @Override
@@ -283,7 +285,7 @@ public class ViewerActivity extends Activity {
                     expiresAt.add(Calendar.SECOND, values[i]);
                 }
 
-                new Client(ViewerActivity.this).changeExpiration(mImage, expiresAt, new AsyncHttpResponseHandler() {
+                mClient.changeExpiration(mImage, expiresAt, new AsyncHttpResponseHandler() {
                     private ProgressDialog mProgressDialog;
 
                     @Override
@@ -363,6 +365,7 @@ public class ViewerActivity extends Activity {
         super.onDestroy();
         mPhotoViewAttacher.cleanup();
 
+        mClient.cancelRequests(true);
         cancelSetImageTask();
     }
 
@@ -389,8 +392,7 @@ public class ViewerActivity extends Activity {
     private void loadImage() {
         mContentView.setVisibility(View.INVISIBLE);
         mProgressBar.setVisibility(View.VISIBLE);
-        Client client = new Client(this);
-        client.get(mImage, new FileAsyncHttpResponseHandler(this) {
+        mClient.get(mImage, new FileAsyncHttpResponseHandler(this) {
             @Override
             public void onSuccess(File file) {
                 setImage(file);
