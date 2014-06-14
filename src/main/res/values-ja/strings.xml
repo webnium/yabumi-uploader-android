@@ -1,7 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="start_upload">アップロードを開始しています</string>
-    <string name="uploading">アップロードしています</string>
+
+    <string name="app_name">Yabumi</string>
+    <string name="action_settings">設定</string>
+    <string name="action_delete">削除</string>
+    <string name="action_change_expiration">有効期限変更</string>
     <string name="action_share">共有</string>
     <string name="share_image_via">画像を共有…</string>
+    <string name="uploading">アップロードしています</string>
+    <string name="viewer_image_description">Image uploaded to Yabumi</string>
+    <string name="deleting_image">画像削除中</string>
+    <string name="ensure_deleting_image">削除した画像は復旧できません。\n\n本当に削除しますか?</string>
+    <string name="yes_delete">はい、削除します</string>
+    <string name="done_deletion">削除しました</string>
+    <string name="done_deletion_message">削除が完了しました</string>
+    <string name="fail_deletion">エラー</string>
+    <string name="fail_deletion_message">Yabumiサーバーから削除できませんでした。\nしばらくしてから再度お試しください。</string>
+    <string name="changing_expiration">有効期限を変更しています</string>
+    <string name="fail_change_expiration_message">有効期限を変更できませんでした。\nしばらくしてから再度お試しください。</string>
+    <string name="unsupported_mime_type">未サポートの形式です</string>
+    <string name="supported_file_types">Yabumiは下記のファイル形式のみサポートしています:\n%1$s</string>
+
+    <!-- expiry options -->
+    <string name="three_minutes">3分</string>
+    <string name="an_hour">1時間</string>
+    <string name="twenty_four_hours">24時間</string>
+    <string name="seven_days">7日</string>
+    <string name="thirty_days">30日</string>
+    <string name="never">期限なし</string>
 </resources>

@@ -1,0 +1,20 @@
+<resources>
+    <string name="title_activity_settings">設定</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_history">履歴</string>
+
+    <string name="pref_title_history_syncing">同期</string>
+    <string name="pref_description_history_syncing">他のデバイスやブラウザと同期</string>
+
+    <string name="pref_title_history_syncing_key">同期キー</string>
+    <string name="pref_description_history_syncing_key">同期用キー</string>
+
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_camera">カメラ</string>
+
+    <string name="pref_title_save_captured_image_on_local">画像をローカルに保存</string>
+
+</resources>
