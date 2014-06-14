@@ -209,6 +209,10 @@ public class ViewerActivity extends Activity {
             case R.id.action_change_expiration:
                 changeImageExpiration();
                 return true;
+            case R.id.action_settings:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }

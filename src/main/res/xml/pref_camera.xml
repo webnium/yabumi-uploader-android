@@ -1,0 +1,9 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBoxPreference
+        android:key="camera_save_captured_image_on_local"
+        android:title="@string/pref_title_save_captured_image_on_local"
+        android:defaultValue="true"
+        android:enabled="false"/>
+
+</PreferenceScreen>
