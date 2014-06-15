@@ -5,7 +5,7 @@
         android:title="@string/pref_title_history_syncing"
         android:summary="@string/pref_description_history_syncing"
         android:defaultValue="false"
-        android:enabled="false"/>
+        android:enabled="true"/>
 
     <!-- NOTE: EditTextPreference accepts EditText attributes. -->
     <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
