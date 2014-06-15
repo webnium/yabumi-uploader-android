@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Build;
 
 import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.ResponseHandlerInterface;
 
@@ -111,5 +112,16 @@ public class Client {
 
     public void cancelRequests(boolean mayInterruptIfRunning) {
         mClient.cancelRequests(mContext, mayInterruptIfRunning);
+    }
+
+    public void putHistory(String key, Image image) {
+        final String url = mBaseUrl + "histories/" + key + "/images/" + image.id + ".json";
+        final String jsonString = String.format("{\"pin\":\"%s\"}", image.pin);
+
+        try {
+            mClient.put(mContext, url, new StringEntity(jsonString), "application/json", new AsyncHttpResponseHandler());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 }
