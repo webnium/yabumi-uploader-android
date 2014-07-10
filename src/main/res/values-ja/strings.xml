@@ -28,4 +28,7 @@
     <string name="seven_days">7日</string>
     <string name="thirty_days">30日</string>
     <string name="never">期限なし</string>
+
+    <string name="button_file">ファイル</string>
+    <string name="button_camera">カメラ</string>
 </resources>

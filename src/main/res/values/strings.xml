@@ -30,4 +30,7 @@
     <string name="seven_days">7 days</string>
     <string name="thirty_days">30 days</string>
     <string name="never">never</string>
+
+    <string name="button_file">File</string>
+    <string name="button_camera">Camera</string>
 </resources>
