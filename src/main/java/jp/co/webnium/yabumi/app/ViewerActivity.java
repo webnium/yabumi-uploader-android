@@ -33,6 +33,7 @@ import java.util.Locale;
 
 import jp.co.webnium.yabumi.Client;
 import jp.co.webnium.yabumi.Image;
+import jp.co.webnium.yabumi.app.history.HistoryManager;
 import jp.co.webnium.yabumi.app.util.ImageSamplingTask;
 import jp.co.webnium.yabumi.app.util.SystemUiHider;
 import uk.co.senab.photoview.PhotoViewAttacher;
@@ -88,6 +89,8 @@ public class ViewerActivity extends Activity {
     private ProgressBar mProgressBar;
 
     private Client mClient;
+
+    private HistoryManager mHistoryManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,6 +166,7 @@ public class ViewerActivity extends Activity {
         });
 
         mClient = new Client(this);
+        mHistoryManager = HistoryManager.create(this);
         handleIntent(getIntent());
     }
 
@@ -404,6 +408,7 @@ public class ViewerActivity extends Activity {
             @Override
             public void onSuccess(File file) {
                 setImage(file);
+                mHistoryManager.add(mImage);
             }
 
             @Override
