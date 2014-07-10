@@ -11,6 +11,8 @@ import java.util.regex.Pattern;
 public class Image {
     final static private Pattern PATTERN_IMAGE_PATH = Pattern.compile("/([0-9a-f]+)\\.(png|jpg|svg|gif|pdf)(?:#pin=([0-9a-f-]+))?$");
     final static public String[] AVAILABLE_CONTENT_TYPES = {"image/png", "image/jpeg", "image/svg+xml", "image/gif", "application/pdf"};
+    final static private Integer ID_RANDOMNESS_LENGTH = 13;
+
     /**
      * Id of the image.
      */
@@ -78,5 +80,17 @@ public class Image {
      */
     public String getUrl() {
         return "https://yabumi.cc/" + getFilename();
+    }
+
+    /**
+     * Get timestamp from id
+     * <p/>
+     * This method is based on the id format(since 2014-04-25):
+     * <q>Date.now().toString(16) + uuid.v4().replace(/-/g, '').substr(13, 13)</q>
+     *
+     * @return the timestamp
+     */
+    public Integer getTimestamp() {
+        return Integer.parseInt(id.substring(0, id.length() - ID_RANDOMNESS_LENGTH), 16);
     }
 }
