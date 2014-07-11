@@ -8,6 +8,7 @@ import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -16,7 +17,10 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -37,6 +41,9 @@ public class MainActivity extends ActionBarActivity {
 
     private Uri mCapturedImageUri;
     private ProgressDialog mProgressDialog;
+    private View mHistoryView;
+    private GridView mHistoryGridView;
+    private View mUploadButtons;
     private Client mClient;
 
     @Override
@@ -44,6 +51,17 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mClient = new Client(this);
+
+        mUploadButtons = findViewById(R.id.main_upload_buttons);
+        mHistoryView = findViewById(R.id.historyView);
+        mHistoryGridView = (GridView) findViewById(R.id.historyGridView);
+
+        mHistoryGridView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return onTouchEvent(motionEvent);
+            }
+        });
 
         handleIntent(getIntent());
     }
@@ -117,6 +135,70 @@ public class MainActivity extends ActionBarActivity {
         intent.putExtra(MediaStore.EXTRA_OUTPUT,  mCapturedImageUri);
 
         startActivityForResult(intent, CAPTURE_IMAGE_REQUEST);
+    }
+
+    private boolean mIsExpandingHistoryView = false;
+    private float mOffsetOnDown;
+    private int mMaxHeightOfHistoryView;
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (isHistoryViewFullExpanded() || mHistoryGridView.getScrollX() != 0) {
+            return false;
+        }
+
+        Rect historyViewVisibleRect = new Rect();
+        mHistoryView.getGlobalVisibleRect(historyViewVisibleRect);
+
+        final float x = event.getRawX();
+        final float y = event.getRawY();
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                if (!historyViewVisibleRect.contains((int) x, (int) y)) {
+                    return false;
+                }
+
+                mIsExpandingHistoryView = true;
+
+                final LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) mHistoryView.getLayoutParams();
+
+                mMaxHeightOfHistoryView = findViewById(R.id.outer_layout).getMeasuredHeight();
+                mOffsetOnDown = layoutParams.weight + y / mMaxHeightOfHistoryView;
+
+                break;
+            case MotionEvent.ACTION_UP:
+                if (!mIsExpandingHistoryView) {
+                    return false;
+                }
+                mIsExpandingHistoryView = false;
+                onExpandingHistoryView(event);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                if (!mIsExpandingHistoryView) {
+                    return false;
+                }
+                onExpandingHistoryView(event);
+        }
+
+        return true;
+    }
+
+    private boolean isHistoryViewFullExpanded() {
+        return false;
+    }
+
+    private void onExpandingHistoryView(MotionEvent event) {
+
+        final float weight = (float) Math.min(1, Math.max(0.3, mOffsetOnDown - event.getRawY() / mMaxHeightOfHistoryView));
+
+        LinearLayout.LayoutParams historyViewLayoutParams = (LinearLayout.LayoutParams) mHistoryView.getLayoutParams();
+        historyViewLayoutParams.weight = weight;
+        mHistoryView.setLayoutParams(historyViewLayoutParams);
+
+        LinearLayout.LayoutParams uploadButtonsLayoutParams = (LinearLayout.LayoutParams) mUploadButtons.getLayoutParams();
+        uploadButtonsLayoutParams.weight = 1 - weight;
+        mUploadButtons.setLayoutParams(uploadButtonsLayoutParams);
     }
 
     @Override
