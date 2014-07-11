@@ -8,16 +8,21 @@ import android.os.Build;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.ResponseHandlerInterface;
 
 import org.apache.http.entity.StringEntity;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -123,5 +128,56 @@ public class Client {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+    }
+
+    public void getHistories(String key, final ImageListRetrieveCallback callback) {
+        final String url = mBaseUrl + "histories/" + key + ".json";
+
+        mClient.get(mContext, url, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, JSONObject response) {
+                if (statusCode != 200) {
+                    callback.onFailure(statusCode);
+                }
+
+                JSONArray jsonImages;
+                try {
+                    jsonImages = response.getJSONArray("images");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    callback.onFailure(503);
+                    return;
+                }
+
+                final int length = jsonImages.length();
+                final ArrayList<Image> imageArrayList = new ArrayList<Image>();
+                for (int i = 0; i < length; i++) {
+                    Image image;
+
+                    try {
+                        final JSONObject object;
+                        object = jsonImages.getJSONObject(i);
+
+                        image = new Image();
+                        image.id = object.getString("id");
+                        image.pin = object.getString("pin");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        callback.onFailure(503);
+                        return;
+                    }
+
+                    imageArrayList.add(image);
+                }
+
+                callback.onSuccess(imageArrayList);
+            }
+        });
+    }
+
+    public interface ImageListRetrieveCallback {
+        public void onSuccess(ArrayList<Image> images);
+
+        public void onFailure(int statusCode);
     }
 }
