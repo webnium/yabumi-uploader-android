@@ -49,6 +49,8 @@ public abstract class HistoryManager {
      */
     abstract public void add(Image image);
 
+    abstract public void remove(Image image);
+
     /**
      * Get images in the history
      *
@@ -89,6 +91,13 @@ public abstract class HistoryManager {
 
             SharedPreferences.Editor editor = mHistory.edit();
             editor.putString(image.id, image.pin);
+            editor.commit();
+        }
+
+        @Override
+        public void remove(Image image) {
+            SharedPreferences.Editor editor = mHistory.edit();
+            editor.remove(image.id);
             editor.commit();
         }
 
@@ -136,6 +145,12 @@ public abstract class HistoryManager {
 
             mLocalHistory.add(image); // Add to local history too.
             mClient.putHistory(mKey, image);
+        }
+
+        @Override
+        public void remove(Image image) {
+            mLocalHistory.remove(image);
+            mClient.deleteHistory(mKey, image);
         }
 
         @Override

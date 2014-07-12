@@ -81,11 +81,13 @@
             android:layout_height="match_parent"
             android:id="@+id/historyGridView"
             android:numColumns="auto_fit"
-            android:columnWidth="@android:dimen/thumbnail_width"
             android:background="@color/history_background"
             android:drawSelectorOnTop="false"
             android:stretchMode="columnWidth"
-            android:layout_below="@+id/linearLayout"/>
+            android:layout_below="@+id/linearLayout"
+            android:longClickable="false"
+            android:columnWidth="@dimen/history_thumbnail_width"
+            android:verticalSpacing="@dimen/history_thumbnail_margin"/>
 
     </RelativeLayout>
 

@@ -8,7 +8,9 @@ import android.os.Build;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.FileAsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestHandle;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.ResponseHandlerInterface;
 
@@ -17,9 +19,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -71,6 +76,12 @@ public class Client {
         mClient.get(mContext, url, handler);
     }
 
+    public RequestHandle getThumbnail(Image image, int width, int height, OnFileLoadedListener listener) {
+        final Uri uri = Uri.parse(mBaseUrl + "images/" + image.id + ".png?resize=" + width + "x" + height);
+
+        return getResource(uri, listener);
+    }
+
     private String getUserAgent() {
         String versionName;
         try {
@@ -120,7 +131,7 @@ public class Client {
     }
 
     public void putHistory(String key, Image image) {
-        final String url = mBaseUrl + "histories/" + key + "/images/" + image.id + ".json";
+        final String url = generateHistoryUrl(key, image);
         final String jsonString = String.format("{\"pin\":\"%s\"}", image.pin);
 
         try {
@@ -128,6 +139,15 @@ public class Client {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+    }
+
+    public void deleteHistory(String key, Image image) {
+        final String url = generateHistoryUrl(key, image);
+        mClient.delete(mContext, url, new AsyncHttpResponseHandler());
+    }
+
+    private String generateHistoryUrl(String key, Image image) {
+        return mBaseUrl + "histories/" + key + "/images/" + image.id + ".json";
     }
 
     public void getHistories(String key, final ImageListRetrieveCallback callback) {
@@ -175,9 +195,56 @@ public class Client {
         });
     }
 
+    private RequestHandle getResource(final Uri uri, final OnFileLoadedListener listener) {
+        final File cacheFile = getCacheFileFromUri(uri);
+        final FileAsyncHttpResponseHandler handler = new FileAsyncHttpResponseHandler(cacheFile) {
+            @Override
+            public void onSuccess(File file) {
+                listener.onLoaded(file);
+            }
+
+            @Override
+            public void onFailure(Throwable e, File response) {
+                response.delete();
+                listener.onFail();
+            }
+        };
+
+        return mClient.get(mContext, uri.toString(), handler);
+    }
+
+    private File getCacheFileFromUri(final Uri uri) {
+        final File dir = new File(mContext.getCacheDir(), "/resources");
+        dir.mkdirs();
+
+        String filename;
+
+        try {
+            filename = URLEncoder.encode(uri.toString(), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+
+        final File file = new File(dir, filename);
+
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return file;
+    }
+
     public interface ImageListRetrieveCallback {
         public void onSuccess(ArrayList<Image> images);
 
         public void onFailure(int statusCode);
+    }
+
+    public interface OnFileLoadedListener {
+        public void onLoaded(File file);
+
+        public void onFail();
     }
 }

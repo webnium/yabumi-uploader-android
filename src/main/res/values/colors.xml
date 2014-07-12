@@ -2,5 +2,6 @@
 
     <color name="black_overlay">#66000000</color>
     <color name="history_background">#ffeeeeee</color>
+    <color name="history_thumbnail_background">#ffdedede</color>
 
 </resources>

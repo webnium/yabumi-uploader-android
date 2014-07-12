@@ -21,6 +21,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.GridView;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.Toast;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -32,6 +33,8 @@ import java.util.Arrays;
 
 import jp.co.webnium.yabumi.Client;
 import jp.co.webnium.yabumi.Image;
+import jp.co.webnium.yabumi.app.history.HistoryManager;
+import jp.co.webnium.yabumi.app.widget.HistoryThumbnailAdapter;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -54,14 +57,18 @@ public class MainActivity extends ActionBarActivity {
 
         mUploadButtons = findViewById(R.id.main_upload_buttons);
         mHistoryView = findViewById(R.id.historyView);
-        mHistoryGridView = (GridView) findViewById(R.id.historyGridView);
 
+        mHistoryGridView = (GridView) findViewById(R.id.historyGridView);
         mHistoryGridView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 return onTouchEvent(motionEvent);
             }
         });
+
+        final HistoryManager historyManager = HistoryManager.create(this);
+        final ListAdapter adapter = new HistoryThumbnailAdapter(this, R.layout.history_thumbnail, historyManager, mClient);
+        mHistoryGridView.setAdapter(adapter);
 
         handleIntent(getIntent());
     }
