@@ -78,7 +78,6 @@ public class MainActivity extends ActionBarActivity {
                 startActivity(intent);
             }
         });
-        syncHistoryManager();
 
         handleIntent(getIntent());
     }
@@ -97,7 +96,7 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        
+
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
@@ -155,7 +154,7 @@ public class MainActivity extends ActionBarActivity {
         }
 
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT,  mCapturedImageUri);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, mCapturedImageUri);
 
         startActivityForResult(intent, CAPTURE_IMAGE_REQUEST);
     }
@@ -258,8 +257,7 @@ public class MainActivity extends ActionBarActivity {
         uploadImage(imageUri);
     }
 
-    private void handleCaptureResult(int resultCode, Intent data)
-    {
+    private void handleCaptureResult(int resultCode, Intent data) {
         if (resultCode != Activity.RESULT_OK) {
             // Capture is failed.
             // Delete image for capture because it's a just garbage.
