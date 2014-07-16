@@ -101,6 +101,12 @@ public class Client {
         return getResource(uri, listener);
     }
 
+    public File getCachedThumbnail(Image image, int width, int height) {
+        final Uri uri = Uri.parse(mBaseUrl + "images/" + image.id + ".png?resize=" + width + "x" + height);
+
+        return getCacheFileFromUri(uri);
+    }
+
     public void loadMetadata(final Image image, final OnMetadataLoadedListener listener) {
         final String url = mBaseUrl + "images/" + image.id + ".json";
 

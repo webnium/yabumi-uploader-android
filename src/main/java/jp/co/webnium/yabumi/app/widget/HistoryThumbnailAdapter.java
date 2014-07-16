@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -93,11 +94,13 @@ public class HistoryThumbnailAdapter extends ArrayAdapter<Image> {
         }
 
         final Resources res = getContext().getResources();
+        final int width = res.getDimensionPixelSize(R.dimen.history_thumbnail_width);
+        final int height = res.getDimensionPixelSize(R.dimen.history_thumbnail_height);
         final WeakReference<ImageView> viewReference = new WeakReference<ImageView>(view);
         final RequestHandle requestHandle = mClient.getThumbnail(
                 image,
-                res.getDimensionPixelSize(R.dimen.history_thumbnail_width),
-                res.getDimensionPixelSize(R.dimen.history_thumbnail_height),
+                width,
+                height,
                 new Client.OnFileLoadedListener() {
 
                     @Override
@@ -111,11 +114,17 @@ public class HistoryThumbnailAdapter extends ArrayAdapter<Image> {
                     @Override
                     public void onNotFound() {
                         mHistoryManager.remove(image);
+                        notifyDataSetChanged();
                     }
                 }
         );
 
-        final AsyncDrawable drawable = new AsyncDrawable(res, mLoadingBitmap, image, requestHandle);
+        final File cachedFile = mClient.getCachedThumbnail(image, width, height);
+        final Bitmap loadingBitmap = cachedFile.exists() ?
+                BitmapFactory.decodeFile(cachedFile.getAbsolutePath()) :
+                mLoadingBitmap;
+
+        final AsyncDrawable drawable = new AsyncDrawable(res, loadingBitmap, image, requestHandle);
         view.setImageDrawable(drawable);
     }
 
