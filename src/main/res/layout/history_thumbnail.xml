@@ -4,7 +4,8 @@
              android:layout_height="wrap_content"
              android:layout_width="wrap_content"
              android:paddingLeft="@dimen/history_thumbnail_margin"
-             android:paddingRight="@dimen/history_thumbnail_margin">
+             android:paddingRight="@dimen/history_thumbnail_margin"
+             android:clickable="true">
 
     <FrameLayout
         android:layout_width="wrap_content"

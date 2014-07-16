@@ -23,6 +23,8 @@ import jp.co.webnium.yabumi.app.R;
 import jp.co.webnium.yabumi.app.history.HistoryManager;
 
 /**
+ * ListAdapter for History thumbnails
+ *
  * Created by Koichi on 2014/07/12.
  */
 public class HistoryThumbnailAdapter extends ArrayAdapter<Image> {
@@ -30,13 +32,18 @@ public class HistoryThumbnailAdapter extends ArrayAdapter<Image> {
     private Client mClient;
     private Bitmap mLoadingBitmap;
     private HistoryManager mHistoryManager;
+    private OnClickThumbnailListener mOnClickThumbnailListener;
 
     public HistoryThumbnailAdapter(Context context, int resource, HistoryManager historyManager, Client client) {
-        super(context, resource, historyManager.getAll());
+        super(context, resource, historyManager.getArrayList());
         mResource = resource;
         mClient = client;
         mLoadingBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.loading);
         mHistoryManager = historyManager;
+    }
+
+    public void setOnClickThumbnailListener(OnClickThumbnailListener listener) {
+        mOnClickThumbnailListener = listener;
     }
 
     @Override
@@ -51,7 +58,19 @@ public class HistoryThumbnailAdapter extends ArrayAdapter<Image> {
 
         final Image image = getItem(position);
         final View view = convertView;
-        setImageToView(image, (ImageView) view.findViewById(R.id.historyThumbnailImage));
+        final ImageView imageView = (ImageView) view.findViewById(R.id.historyThumbnailImage);
+        setImageToView(image, imageView);
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mOnClickThumbnailListener == null) {
+                    return;
+                }
+
+                mOnClickThumbnailListener.onClickThumbnail(image);
+            }
+        });
+        view.setClickable(true);
 
         return view;
     }
@@ -90,22 +109,19 @@ public class HistoryThumbnailAdapter extends ArrayAdapter<Image> {
                     }
 
                     @Override
-                    public void onFail() {
+                    public void onNotFound() {
                         mHistoryManager.remove(image);
                     }
                 }
         );
 
         final AsyncDrawable drawable = new AsyncDrawable(res, mLoadingBitmap, image, requestHandle);
+        view.setImageDrawable(drawable);
     }
 
     private boolean viewHasDrawableForImage(ImageView view, Image image) {
         final Drawable drawable = view.getDrawable();
-        if (!(drawable instanceof ImageDrawable)) {
-            return false;
-        }
-
-        return ((ImageDrawable) drawable).getImage().equals(image);
+        return drawable instanceof ImageDrawable && ((ImageDrawable) drawable).getImage().equals(image);
     }
 
     private static class ImageDrawable extends BitmapDrawable {
@@ -133,5 +149,9 @@ public class HistoryThumbnailAdapter extends ArrayAdapter<Image> {
             return mRequestWeakRef.get();
         }
 
+    }
+
+    public interface OnClickThumbnailListener {
+        public void onClickThumbnail(Image image);
     }
 }

@@ -5,6 +5,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -14,7 +15,9 @@ import com.loopj.android.http.RequestHandle;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.ResponseHandlerInterface;
 
+import org.apache.http.Header;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicHeader;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -71,8 +74,24 @@ public class Client {
         mClient.post(mContext, url, params, handler);
     }
 
-    public void get(Image image, ResponseHandlerInterface handler) {
+    public void get(Image image, final ResponseHandlerInterface handler) {
         final String url = mBaseUrl + "images/" + image.getFilename();
+
+        if (image.extension == null) {
+            loadMetadata(image, new OnMetadataLoadedListener() {
+                @Override
+                public void onLoaded(Image image) {
+                    final String url = mBaseUrl + "images/" + image.getFilename();
+                    mClient.get(mContext, url, handler);
+                }
+
+                @Override
+                public void onNotFound() {
+                }
+            });
+
+            return;
+        }
         mClient.get(mContext, url, handler);
     }
 
@@ -80,6 +99,29 @@ public class Client {
         final Uri uri = Uri.parse(mBaseUrl + "images/" + image.id + ".png?resize=" + width + "x" + height);
 
         return getResource(uri, listener);
+    }
+
+    public void loadMetadata(final Image image, final OnMetadataLoadedListener listener) {
+        final String url = mBaseUrl + "images/" + image.id + ".json";
+
+        mClient.get(mContext, url, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                try {
+                    image.extension = response.getString("extension");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                listener.onLoaded(image);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseBody, Throwable e) {
+                if (statusCode == 404) {
+                    listener.onNotFound();
+                }
+            }
+        });
     }
 
     private String getUserAgent() {
@@ -197,6 +239,20 @@ public class Client {
 
     private RequestHandle getResource(final Uri uri, final OnFileLoadedListener listener) {
         final File cacheFile = getCacheFileFromUri(uri);
+
+        Header[] headers = {};
+
+        if (cacheFile.exists()) {
+            Log.d("Client", RFC2822_DATE_FORMAT.format(cacheFile.lastModified()));
+            headers = new Header[]{new BasicHeader("If-Modified-Since", RFC2822_DATE_FORMAT.format(cacheFile.lastModified()))};
+        } else {
+            try {
+                cacheFile.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         final FileAsyncHttpResponseHandler handler = new FileAsyncHttpResponseHandler(cacheFile) {
             @Override
             public void onSuccess(File file) {
@@ -204,13 +260,15 @@ public class Client {
             }
 
             @Override
-            public void onFailure(Throwable e, File response) {
-                response.delete();
-                listener.onFail();
+            public void onFailure(int statusCode, Throwable e, File response) {
+                if (statusCode == 404) {
+                    response.delete();
+                    listener.onNotFound();
+                }
             }
         };
 
-        return mClient.get(mContext, uri.toString(), handler);
+        return mClient.get(mContext, uri.toString(), headers, new RequestParams(), handler);
     }
 
     private File getCacheFileFromUri(final Uri uri) {
@@ -225,15 +283,7 @@ public class Client {
             throw new RuntimeException(e);
         }
 
-        final File file = new File(dir, filename);
-
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return file;
+        return new File(dir, filename);
     }
 
     public interface ImageListRetrieveCallback {
@@ -245,6 +295,12 @@ public class Client {
     public interface OnFileLoadedListener {
         public void onLoaded(File file);
 
-        public void onFail();
+        public void onNotFound();
+    }
+
+    public interface OnMetadataLoadedListener {
+        public void onLoaded(Image image);
+
+        public void onNotFound();
     }
 }

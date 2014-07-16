@@ -21,7 +21,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.GridView;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.Toast;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -48,6 +47,7 @@ public class MainActivity extends ActionBarActivity {
     private GridView mHistoryGridView;
     private View mUploadButtons;
     private Client mClient;
+    HistoryManager mHistoryManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,11 +66,27 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        final HistoryManager historyManager = HistoryManager.create(this);
-        final ListAdapter adapter = new HistoryThumbnailAdapter(this, R.layout.history_thumbnail, historyManager, mClient);
+        mHistoryManager = HistoryManager.getInstance(this);
+        final HistoryThumbnailAdapter adapter = new HistoryThumbnailAdapter(this, R.layout.history_thumbnail, mHistoryManager, mClient);
         mHistoryGridView.setAdapter(adapter);
+        adapter.setOnClickThumbnailListener(new HistoryThumbnailAdapter.OnClickThumbnailListener() {
+            @Override
+            public void onClickThumbnail(Image image) {
+                Intent intent = new Intent(getApplicationContext(), ViewerActivity.class);
+                intent.putExtra("image", image);
+                intent.setAction(ViewerActivity.ACTION_INTERNAL_VIEW);
+                startActivity(intent);
+            }
+        });
+        syncHistoryManager();
 
         handleIntent(getIntent());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        syncHistoryManager();
     }
 
     @Override
@@ -186,6 +202,8 @@ public class MainActivity extends ActionBarActivity {
                     return false;
                 }
                 onExpandingHistoryView(event);
+            default:
+                return false;
         }
 
         return true;
@@ -258,6 +276,21 @@ public class MainActivity extends ActionBarActivity {
             return;
         }
         mClient.upload(imageUri, new MyAsyncHttpResponseHandler());
+    }
+
+    private void syncHistoryManager() {
+        mHistoryManager.sync(new HistoryManager.SyncingCallback() {
+            @Override
+            public void onSynced(HistoryManager manager) {
+                ((HistoryThumbnailAdapter) mHistoryGridView.getAdapter()).notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(HistoryManager manager) {
+                Toast.makeText(getApplicationContext(), R.string.history_syncing_failed, Toast.LENGTH_LONG).show();
+                ((HistoryThumbnailAdapter) mHistoryGridView.getAdapter()).notifyDataSetChanged();
+            }
+        });
     }
 
     private class MyAsyncHttpResponseHandler extends JsonHttpResponseHandler {
