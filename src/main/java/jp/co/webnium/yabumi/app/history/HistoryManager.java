@@ -73,11 +73,11 @@ public abstract class HistoryManager {
     public static class LocalHistoryManager extends HistoryManager {
         final static String HISTORY_PREFERENCE_NAME = "localHistory";
 
-        private SharedPreferences mHistory;
+        private Context mContext;
         private final ArrayList<Image> mHistoryList = new ArrayList<Image>();
 
         protected LocalHistoryManager(Context context) {
-            mHistory = context.getSharedPreferences(HISTORY_PREFERENCE_NAME, Context.MODE_PRIVATE);
+            mContext = context;
         }
 
         @Override
@@ -88,21 +88,21 @@ public abstract class HistoryManager {
                 return;
             }
 
-            SharedPreferences.Editor editor = mHistory.edit();
+            SharedPreferences.Editor editor = mContext.getSharedPreferences(HISTORY_PREFERENCE_NAME, Context.MODE_PRIVATE).edit();
             editor.putString(image.id, image.pin);
             editor.commit();
         }
 
         @Override
         public void remove(Image image) {
-            SharedPreferences.Editor editor = mHistory.edit();
+            SharedPreferences.Editor editor = mContext.getSharedPreferences(HISTORY_PREFERENCE_NAME, Context.MODE_PRIVATE).edit();
             editor.remove(image.id);
             editor.commit();
         }
 
         @Override
         public void sync(SyncingCallback callback) {
-            Map<String, ?> historyMap = mHistory.getAll();
+            Map<String, ?> historyMap = mContext.getSharedPreferences(HISTORY_PREFERENCE_NAME, Context.MODE_PRIVATE).getAll();
 
             mHistoryList.clear();
             for (Map.Entry<String, ?> e : historyMap.entrySet()) {
