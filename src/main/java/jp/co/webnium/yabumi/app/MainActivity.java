@@ -183,10 +183,10 @@ public class MainActivity extends ActionBarActivity {
 
                 mIsExpandingHistoryView = true;
 
-                final LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) mHistoryView.getLayoutParams();
+                final LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) mUploadButtons.getLayoutParams();
 
                 mMaxHeightOfHistoryView = findViewById(R.id.outer_layout).getMeasuredHeight();
-                mOffsetOnDown = layoutParams.weight + y / mMaxHeightOfHistoryView;
+                mOffsetOnDown = layoutParams.weight - y / mMaxHeightOfHistoryView;
 
                 break;
             case MotionEvent.ACTION_UP:
@@ -214,14 +214,10 @@ public class MainActivity extends ActionBarActivity {
 
     private void onExpandingHistoryView(MotionEvent event) {
 
-        final float weight = (float) Math.min(1, Math.max(0.3, mOffsetOnDown - event.getRawY() / mMaxHeightOfHistoryView));
-
-        LinearLayout.LayoutParams historyViewLayoutParams = (LinearLayout.LayoutParams) mHistoryView.getLayoutParams();
-        historyViewLayoutParams.weight = weight;
-        mHistoryView.setLayoutParams(historyViewLayoutParams);
+        final float weight = (float) Math.min(0.7, Math.max(0, mOffsetOnDown + event.getRawY() / mMaxHeightOfHistoryView));
 
         LinearLayout.LayoutParams uploadButtonsLayoutParams = (LinearLayout.LayoutParams) mUploadButtons.getLayoutParams();
-        uploadButtonsLayoutParams.weight = 1 - weight;
+        uploadButtonsLayoutParams.weight = weight;
         mUploadButtons.setLayoutParams(uploadButtonsLayoutParams);
     }
 
