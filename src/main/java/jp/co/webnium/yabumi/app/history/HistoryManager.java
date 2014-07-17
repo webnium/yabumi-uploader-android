@@ -78,6 +78,7 @@ public abstract class HistoryManager {
 
         protected LocalHistoryManager(Context context) {
             mContext = context;
+            loadHistoryList();
         }
 
         @Override
@@ -98,10 +99,16 @@ public abstract class HistoryManager {
             SharedPreferences.Editor editor = mContext.getSharedPreferences(HISTORY_PREFERENCE_NAME, Context.MODE_PRIVATE).edit();
             editor.remove(image.id);
             editor.commit();
+            mHistoryList.remove(image);
         }
 
         @Override
         public void sync(SyncingCallback callback) {
+            loadHistoryList();
+            callback.onSynced(this);
+        }
+
+        private void loadHistoryList() {
             Map<String, ?> historyMap = mContext.getSharedPreferences(HISTORY_PREFERENCE_NAME, Context.MODE_PRIVATE).getAll();
 
             mHistoryList.clear();
