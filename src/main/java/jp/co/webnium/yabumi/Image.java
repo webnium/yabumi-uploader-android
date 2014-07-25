@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,6 +14,7 @@ import java.util.regex.Pattern;
 public class Image implements Comparable<Image>, Serializable {
     final static private Pattern PATTERN_IMAGE_PATH = Pattern.compile("/([0-9a-f]+)\\.(png|jpg|svg|gif|pdf)(?:#pin=([0-9a-f-]+))?$");
     final static public String[] AVAILABLE_CONTENT_TYPES = {"image/png", "image/jpeg", "image/svg+xml", "image/gif", "application/pdf"};
+    final static private BigInteger OLD_ID_THRESHOLD = new BigInteger("500000000000000000000000", 16);
 
     /**
      * Id of the image.
@@ -85,8 +87,17 @@ public class Image implements Comparable<Image>, Serializable {
 
     @Override
     public int compareTo(@NonNull Image image) {
-        // Strictly speaking, this should be:
-        // return (new BigInteger(id, 16)).compareTo(new BigInteger(image.id, 16))
-        return id.compareTo(image.id);
+        BigInteger myId = new BigInteger(id, 16);
+        BigInteger othersId = new BigInteger(image.id, 16);
+
+        if (myId.compareTo(OLD_ID_THRESHOLD) > 0) {
+            if (othersId.compareTo(OLD_ID_THRESHOLD) > 0) return myId.compareTo(othersId);
+
+            return -1;
+        }
+
+        if (othersId.compareTo(OLD_ID_THRESHOLD) > 0) return 1;
+
+        return myId.compareTo(othersId);
     }
 }
