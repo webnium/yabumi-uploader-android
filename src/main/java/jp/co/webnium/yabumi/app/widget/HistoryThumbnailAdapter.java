@@ -95,12 +95,10 @@ public class HistoryThumbnailAdapter extends ArrayAdapter<Image> {
 
         final Resources res = getContext().getResources();
         final int width = res.getDimensionPixelSize(R.dimen.history_thumbnail_width);
-        final int height = res.getDimensionPixelSize(R.dimen.history_thumbnail_height);
         final WeakReference<ImageView> viewReference = new WeakReference<ImageView>(view);
         final RequestHandle requestHandle = mClient.getThumbnail(
                 image,
                 width,
-                height,
                 new Client.OnFileLoadedListener() {
 
                     @Override
@@ -119,7 +117,7 @@ public class HistoryThumbnailAdapter extends ArrayAdapter<Image> {
                 }
         );
 
-        final File cachedFile = mClient.getCachedThumbnail(image, width, height);
+        final File cachedFile = mClient.getCachedThumbnail(image, width);
         final Bitmap loadingBitmap = cachedFile.exists() ?
                 BitmapFactory.decodeFile(cachedFile.getAbsolutePath()) :
                 mLoadingBitmap;

@@ -98,14 +98,14 @@ public class Client {
         mClient.get(mContext, url, handler);
     }
 
-    public RequestHandle getThumbnail(Image image, int width, int height, OnFileLoadedListener listener) {
-        final Uri uri = Uri.parse(mBaseUrl + "images/" + image.id + ".png?resize=" + width + "x" + height);
+    public RequestHandle getThumbnail(Image image, int sideLength, OnFileLoadedListener listener) {
+        final Uri uri = Uri.parse(mBaseUrl + "images/" + image.id + ".png?resize=" + sideLength);
 
         return getResource(uri, listener);
     }
 
-    public File getCachedThumbnail(Image image, int width, int height) {
-        final Uri uri = Uri.parse(mBaseUrl + "images/" + image.id + ".png?resize=" + width + "x" + height);
+    public File getCachedThumbnail(Image image, int sideLength) {
+        final Uri uri = Uri.parse(mBaseUrl + "images/" + image.id + ".png?resize=" + sideLength);
 
         return getCacheFileFromUri(uri);
     }

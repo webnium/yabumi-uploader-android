@@ -16,7 +16,7 @@
             android:layout_width="@dimen/history_thumbnail_width"
             android:layout_height="@dimen/history_thumbnail_height"
             android:id="@+id/historyThumbnailImage"
-            android:scaleType="centerCrop"
+            android:scaleType="center"
             android:cropToPadding="true"/>
     </FrameLayout>
 </FrameLayout>
