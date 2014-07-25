@@ -225,7 +225,7 @@ public class MainActivity extends ActionBarActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case CAPTURE_IMAGE_REQUEST:
-                handleCaptureResult(resultCode, data);
+                handleCaptureResult(resultCode);
                 break;
             case GET_CONTENT_REQUEST:
                 handleGetContentResult(resultCode, data);
@@ -253,7 +253,7 @@ public class MainActivity extends ActionBarActivity {
         uploadImage(imageUri);
     }
 
-    private void handleCaptureResult(int resultCode, Intent data) {
+    private void handleCaptureResult(int resultCode) {
         if (resultCode != Activity.RESULT_OK) {
             // Capture is failed.
             // Delete image for capture because it's a just garbage.
