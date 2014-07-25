@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="240"
+   height="10"
+   id="svg2999"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="history_area_handle.svg">
+  <defs
+     id="defs3001" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="8"
+     inkscape:cx="81.826573"
+     inkscape:cy="17.160168"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer2"
+     showgrid="false"
+     height="10px"
+     inkscape:showpageshadow="false"
+     inkscape:snap-global="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1028"
+     inkscape:window-x="1916"
+     inkscape:window-y="-4"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata3004">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="仮背景">
+    <rect
+       style="fill:#eeeeee;fill-opacity:0.94117647;fill-rule:nonzero;stroke:none"
+       id="rect3008"
+       width="256.54407"
+       height="33.151215"
+       x="-7.11132"
+       y="0" />
+    <path
+       style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       d="m 112.00781,0 12.50001,0 -6.25001,6.25 z"
+       id="rect3781"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc"
+       inkscape:export-filename="C:\Users\Koichi\Documents\work\webnium\yabumi-for-android\app\src\main\res\drawable-xxhdpi\history_handle_tirangle.png"
+       inkscape:export-xdpi="432"
+       inkscape:export-ydpi="432" />
+    <g
+       id="g3884"
+       transform="translate(0,-0.4393398)"
+       inkscape:export-filename="C:\Users\Koichi\Documents\work\webnium\yabumi-for-android\app\src\main\res\drawable-xxhdpi\history_handle_antislip.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180">
+      <g
+         transform="translate(2.5,-1.0606602)"
+         id="g3804">
+        <path
+           sodipodi:nodetypes="cc"
+           style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:0.20392157"
+           d="M 3,4 103,4"
+           inkscape:connector-curvature="0"
+           id="path3784" />
+        <path
+           style="font-size:medium;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:normal;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;baseline-shift:baseline;color:#000000;fill:#ffffff;fill-opacity:0.49803922;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Sans;-inkscape-font-specification:Sans"
+           d="m 2.5,4.5 0,1 0.5,0 100,0 0.5,0 0,-1 -0.5,0 -100,0 -0.5,0 z"
+           id="path3784-1"
+           inkscape:connector-curvature="0" />
+      </g>
+      <g
+         transform="translate(2.5,2.9393398)"
+         id="g3804-9-8">
+        <path
+           sodipodi:nodetypes="cc"
+           style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:0.20392157"
+           d="M 3,4 103,4"
+           id="path3784-4-2"
+           inkscape:connector-curvature="0" />
+        <path
+           sodipodi:nodetypes="cc"
+           style="fill:none;stroke:#ffffff;stroke-width:1px;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:0.50196078"
+           d="M 3,5 103,5"
+           id="path3784-1-8-4"
+           inkscape:connector-curvature="0" />
+      </g>
+    </g>
+  </g>
+  <g
+     inkscape:label="レイヤー 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-1042.3622)" />
+</svg>

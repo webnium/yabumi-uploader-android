@@ -31,4 +31,5 @@
 
     <string name="button_file">ファイル</string>
     <string name="button_camera">カメラ</string>
+    <string name="history_syncing_failed">履歴の同期に失敗しました</string>
 </resources>

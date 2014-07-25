@@ -1,16 +1,19 @@
 package jp.co.webnium.yabumi;
 
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
+import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Image meta data class for yabumi.cc
  */
-public class Image {
+public class Image implements Comparable<Image>, Serializable {
     final static private Pattern PATTERN_IMAGE_PATH = Pattern.compile("/([0-9a-f]+)\\.(png|jpg|svg|gif|pdf)(?:#pin=([0-9a-f-]+))?$");
     final static public String[] AVAILABLE_CONTENT_TYPES = {"image/png", "image/jpeg", "image/svg+xml", "image/gif", "application/pdf"};
+
     /**
      * Id of the image.
      */
@@ -78,5 +81,12 @@ public class Image {
      */
     public String getUrl() {
         return "https://yabumi.cc/" + getFilename();
+    }
+
+    @Override
+    public int compareTo(@NonNull Image image) {
+        // Strictly speaking, this should be:
+        // return (new BigInteger(id, 16)).compareTo(new BigInteger(image.id, 16))
+        return id.compareTo(image.id);
     }
 }

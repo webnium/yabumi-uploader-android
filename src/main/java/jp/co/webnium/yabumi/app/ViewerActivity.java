@@ -45,6 +45,8 @@ import uk.co.senab.photoview.PhotoViewAttacher;
  * @see SystemUiHider
  */
 public class ViewerActivity extends Activity {
+    static public final String ACTION_INTERNAL_VIEW = "cc.yabumi.action.internal-view";
+
     private static final int MAXIMUM_IMAGE_SIZE_IN_BYTE = 5000000;
 
     /**
@@ -166,7 +168,7 @@ public class ViewerActivity extends Activity {
         });
 
         mClient = new Client(this);
-        mHistoryManager = HistoryManager.create(this);
+        mHistoryManager = HistoryManager.getInstance(this);
         handleIntent(getIntent());
     }
 
@@ -388,10 +390,15 @@ public class ViewerActivity extends Activity {
     }
 
     private void handleIntent(Intent intent) {
-        Uri uri;
-        uri = intent.getData();
+        final String action = intent.getAction();
+        if (action != null && action.equals(ACTION_INTERNAL_VIEW)) {
+            mImage = (Image) intent.getSerializableExtra("image");
+        } else {
+            Uri uri;
+            uri = intent.getData();
+            mImage = Image.fromUri(uri);
+        }
 
-        mImage = Image.fromUri(uri);
 
         if (!mImage.isAvailable()) {
             startActivity(new Intent(getApplicationContext(), MainActivity.class));

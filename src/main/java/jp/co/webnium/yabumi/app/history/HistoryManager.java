@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -19,7 +21,7 @@ public abstract class HistoryManager {
     final static String PREF_HISTORY_SYNCING = "history_syncing";
     final static String PREF_HISTORY_SYNCING_KEY = "history_syncing_key";
 
-    public static HistoryManager create(Context context) {
+    public static HistoryManager getInstance(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         String syncingKey = preferences.getString(PREF_HISTORY_SYNCING_KEY, "");
@@ -32,13 +34,36 @@ public abstract class HistoryManager {
     }
 
     /**
+     * Sync the history.
+     *
+     * @param callback the callback
+     */
+    abstract public void sync(SyncingCallback callback);
+
+    /**
      * Add new image
      *
      * @param image an image to add to the history.
      */
     abstract public void add(Image image);
 
-    abstract public Iterator<Image> getAll();
+    abstract public void remove(Image image);
+
+    /**
+     * Get images in the history
+     *
+     * @return list of images.
+     */
+    abstract public ArrayList<Image> getArrayList();
+
+    /**
+     * Callback for syncing
+     */
+    public interface SyncingCallback {
+        public void onSynced(HistoryManager manager);
+
+        public void onFailure(HistoryManager manager);
+    }
 
     /**
      * Local history manager.
@@ -48,10 +73,12 @@ public abstract class HistoryManager {
     public static class LocalHistoryManager extends HistoryManager {
         final static String HISTORY_PREFERENCE_NAME = "localHistory";
 
-        private SharedPreferences mHistory;
+        private Context mContext;
+        private final ArrayList<Image> mHistoryList = new ArrayList<Image>();
 
         protected LocalHistoryManager(Context context) {
-            mHistory = context.getSharedPreferences(HISTORY_PREFERENCE_NAME, Context.MODE_PRIVATE);
+            mContext = context;
+            loadHistoryList();
         }
 
         @Override
@@ -62,43 +89,42 @@ public abstract class HistoryManager {
                 return;
             }
 
-            SharedPreferences.Editor editor = mHistory.edit();
+            SharedPreferences.Editor editor = mContext.getSharedPreferences(HISTORY_PREFERENCE_NAME, Context.MODE_PRIVATE).edit();
             editor.putString(image.id, image.pin);
             editor.commit();
         }
 
         @Override
-        public Iterator<Image> getAll() {
-            final Iterator<? extends Map.Entry<String, ?>> iterator;
+        public void remove(Image image) {
+            SharedPreferences.Editor editor = mContext.getSharedPreferences(HISTORY_PREFERENCE_NAME, Context.MODE_PRIVATE).edit();
+            editor.remove(image.id);
+            editor.commit();
+            mHistoryList.remove(image);
+        }
 
-            try {
-                //noinspection ConstantConditions
-                iterator = mHistory.getAll().entrySet().iterator();
-            } catch (NullPointerException e) {
-                return null;
+        @Override
+        public void sync(SyncingCallback callback) {
+            loadHistoryList();
+            callback.onSynced(this);
+        }
+
+        private void loadHistoryList() {
+            Map<String, ?> historyMap = mContext.getSharedPreferences(HISTORY_PREFERENCE_NAME, Context.MODE_PRIVATE).getAll();
+
+            mHistoryList.clear();
+            for (Map.Entry<String, ?> e : historyMap.entrySet()) {
+                Image image = new Image();
+                image.id = e.getKey();
+                image.pin = (String) e.getValue();
+                mHistoryList.add(image);
             }
 
-            return new Iterator<Image>() {
-                @Override
-                public boolean hasNext() {
-                    return iterator.hasNext();
-                }
+            Collections.sort(mHistoryList, Collections.reverseOrder());
+        }
 
-                @Override
-                public Image next() {
-                    Image image = new Image();
-                    Map.Entry<String, ?> entry = iterator.next();
-                    image.id = entry.getKey();
-                    image.pin = (String) entry.getValue();
-
-                    return image;
-                }
-
-                @Override
-                public void remove() {
-                    /* do nothing, don't remove element with this iterator */
-                }
-            };
+        @Override
+        public ArrayList<Image> getArrayList() {
+            return mHistoryList;
         }
     }
 
@@ -131,8 +157,83 @@ public abstract class HistoryManager {
         }
 
         @Override
-        public Iterator<Image> getAll() {
-            return null;
+        public void remove(Image image) {
+            mLocalHistory.remove(image);
+            mClient.deleteHistory(mKey, image);
+        }
+
+        @Override
+        public ArrayList<Image> getArrayList() {
+            return mLocalHistory.getArrayList();
+        }
+
+        @Override
+        public void sync(final SyncingCallback callback) {
+            mClient.getHistories(mKey, new Client.ImageListRetrieveCallback() {
+                @Override
+                public void onSuccess(ArrayList<Image> remoteHistory) {
+                    ArrayList<Image> localHistory = mLocalHistory.getArrayList();
+
+                    Collections.sort(remoteHistory, Collections.reverseOrder());
+
+                    final Iterator<Image> localItr = localHistory.listIterator();
+                    final Iterator<Image> remoteItr = remoteHistory.listIterator();
+
+                    Image local = tryGetNext(localItr);
+                    Image remote = tryGetNext(remoteItr);
+                    while (local != null || remote != null) {
+
+                        if (local == null) {
+                            mLocalHistory.add(remote);
+                            remote = tryGetNext(remoteItr);
+                            continue;
+                        }
+
+                        if (remote == null) {
+                            mClient.putHistory(mKey, local);
+                            local = tryGetNext(localItr);
+                            continue;
+                        }
+
+                        final int compareState = local.compareTo(remote);
+                        if (compareState < 0) {
+                            mClient.putHistory(mKey, local);
+                            local = tryGetNext(localItr);
+                            continue;
+                        }
+
+                        if (compareState == 0) {
+                            local = tryGetNext(localItr);
+                            remote = tryGetNext(remoteItr);
+                            continue;
+                        }
+
+                        mLocalHistory.add(remote);
+                        remote = tryGetNext(remoteItr);
+                    }
+
+                    mLocalHistory.sync(new SyncingCallback() {
+                        @Override
+                        public void onSynced(HistoryManager manager) {
+                            callback.onSynced(SyncingHistoryManager.this);
+                        }
+
+                        @Override
+                        public void onFailure(HistoryManager manager) {
+                            callback.onFailure(SyncingHistoryManager.this);
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(int statusCode) {
+                    callback.onFailure(SyncingHistoryManager.this);
+                }
+            });
+        }
+
+        static private Image tryGetNext(Iterator<Image> it) {
+            return it.hasNext() ? it.next() : null;
         }
     }
 }
