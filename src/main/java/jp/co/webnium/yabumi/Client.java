@@ -33,6 +33,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 
 import jp.co.webnium.yabumi.app.R;
 
@@ -41,6 +43,7 @@ import jp.co.webnium.yabumi.app.R;
  */
 public class Client {
     static private final DateFormat RFC2822_DATE_FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
+    static private final DateFormat HTTP_DATE_FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US) {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
 
     private String mBaseUrl;
     private Context mContext;
@@ -249,8 +252,8 @@ public class Client {
         Header[] headers = {};
 
         if (cacheFile.exists()) {
-            Log.d("Client", RFC2822_DATE_FORMAT.format(cacheFile.lastModified()));
-            headers = new Header[]{new BasicHeader("If-Modified-Since", RFC2822_DATE_FORMAT.format(cacheFile.lastModified()))};
+            Log.d("Client", HTTP_DATE_FORMAT.format(cacheFile.lastModified()));
+            headers = new Header[]{new BasicHeader("If-Modified-Since", HTTP_DATE_FORMAT.format(cacheFile.lastModified()))};
         } else {
             try {
                 cacheFile.createNewFile();
