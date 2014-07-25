@@ -136,7 +136,7 @@ public class MainActivity extends ActionBarActivity {
         intent.setType("*/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
 
-        startActivityForResult(Intent.createChooser(intent, "Select to upload."), GET_CONTENT_REQUEST);
+        startActivityForResult(Intent.createChooser(intent, getString(R.string.select_a_file_to_upload)), GET_CONTENT_REQUEST);
     }
 
     public void onClickCameraButton(View view) {
